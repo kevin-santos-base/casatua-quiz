@@ -12,6 +12,6 @@ services:
       - key: ANTHROPIC_MODEL
         value: claude-haiku-4-5
       - key: MAX_TOKENS
-        value: "2000"
+        value: "4000"
       - key: PYTHON_VERSION
         value: "3.11.9"
