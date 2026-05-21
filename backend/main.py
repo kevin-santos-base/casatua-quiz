@@ -180,7 +180,8 @@ def _enrich_with_urls(result: dict) -> dict:
             if not isinstance(item, dict):
                 continue
             category = (item.get("categoria") or "").strip().lower()
-            item["url"] = resolve_url(store_key, category)
+            product_name = (item.get("nome") or "").strip()
+            item["url"] = resolve_url(store_key, category, product_name)
             enriched.append(item)
         prodotti[store_key] = enriched
 

@@ -1,14 +1,22 @@
 """
 Curated URL map for the six partner stores.
 
-Claude returns a category slug per product (e.g. "divano", "lampada"). The
-backend resolves that slug to a verified URL using this map, so the AI cannot
-hallucinate broken links. If a slug is missing, we fall back to the store
-homepage.
+Claude returns a category slug per product (e.g. "divano", "lampada") plus
+a human-readable product name. The backend resolves the category to a base
+URL from STORE_URLS, then optionally refines the URL using keywords from the
+product name so the user lands on a tighter list of items that match the
+AI's specific suggestion (Option C in the phase-2 design discussion).
+
+For stores using a search endpoint (Zara Home today, others later), the
+refinement appends up to 2 descriptors from the product name to the existing
+search term. For stores using category-path URLs, the URL is returned
+unmodified.
 
 Each URL should be verified manually before deploying. Marked with `# VERIFY`
 where a URL is best-effort and should be double-checked in the browser.
 """
+
+from urllib.parse import urlencode, urlparse, parse_qs, quote_plus
 
 # Canonical category slugs used in the prompt sent to Claude.
 # Keep this list short and broad — the AI works better with fewer options.
@@ -62,7 +70,7 @@ STORE_URLS = {
         "specchio": "https://www.zarahome.com/it/search.html?term=specchio",
         "tenda": "https://www.zarahome.com/it/search.html?term=tenda",
         "decorazione": "https://www.zarahome.com/it/search.html?term=decorazione",
-        "tessuto": "https://www.zarahome.com/it/search.html?term=plaid",
+        "tessuto": "https://www.zarahome.com/it/search.html?term=coperta",
     },
     "westwing": {
         "_home": "https://www.westwing.it/",
@@ -133,12 +141,75 @@ STORE_URLS = {
 }
 
 
-def resolve_url(store: str, category: str) -> str:
-    """Resolve a (store, category) pair to a verified URL.
+_ITALIAN_STOP_WORDS = frozenset({
+    # articles
+    "il", "lo", "la", "i", "gli", "le", "un", "uno", "una",
+    # simple prepositions
+    "di", "a", "da", "in", "con", "su", "per", "tra", "fra", "ad",
+    # combined prepositions
+    "del", "della", "dei", "delle", "dello", "dell",
+    "al", "alla", "ai", "alle", "allo",
+    "dal", "dalla", "dai", "dalle", "dallo",
+    "nel", "nella", "nei", "nelle", "nello",
+    "sul", "sulla", "sui", "sulle", "sullo",
+    # conjunctions and other tiny fillers
+    "e", "ed", "o", "od", "ma", "se", "che", "non", "anche",
+})
+
+# Query-parameter names commonly used by store search endpoints. We look for
+# any of these when deciding whether a URL is "search-shaped" and can be
+# refined with extra keywords.
+_SEARCH_PARAMS = ("term", "q", "query", "searchTerm")
+
+
+def _refine_search_url(base_url: str, product_name: str, max_extra: int = 2) -> str:
+    """If base_url is a search URL, append meaningful keywords from product_name.
+
+    Returns base_url unchanged when product_name is empty, when the URL has no
+    recognised search parameter, or when no new keywords can be extracted.
+    """
+    if not product_name:
+        return base_url
+    try:
+        parsed = urlparse(base_url)
+    except Exception:
+        return base_url
+    qs = parse_qs(parsed.query)
+
+    search_key = next((k for k in _SEARCH_PARAMS if k in qs), None)
+    if not search_key:
+        return base_url
+    current_term = (qs[search_key][0] if qs[search_key] else "").strip()
+    if not current_term:
+        return base_url
+
+    existing = {w.lower() for w in current_term.split()}
+    extras: list[str] = []
+    for raw in product_name.split():
+        word = raw.strip(",.!?-:;()—–‘’“”").lower()
+        if not word or word in _ITALIAN_STOP_WORDS or word in existing:
+            continue
+        existing.add(word)
+        extras.append(word)
+        if len(extras) >= max_extra:
+            break
+
+    if not extras:
+        return base_url
+
+    new_term = " ".join([current_term] + extras)
+    new_query = urlencode([(search_key, new_term)], quote_via=quote_plus)
+    return parsed._replace(query=new_query).geturl()
+
+
+def resolve_url(store: str, category: str, product_name: str = "") -> str:
+    """Resolve a (store, category) pair to a URL, optionally refined with the
+    product name to land on a more specific search result.
 
     Falls back to the store homepage when category is unknown.
     """
     store_map = STORE_URLS.get(store)
     if not store_map:
         return ""
-    return store_map.get(category) or store_map["_home"]
+    base = store_map.get(category) or store_map["_home"]
+    return _refine_search_url(base, product_name)
