@@ -274,22 +274,6 @@ var EMOJIS={divano:'🛋️',poltrona:'🪑',tavolino:'🪵',lampada:'💡',tapp
 
 function getEmoji(c){return EMOJIS[c]||EMOJIS['default'];}
 
-function openExternal(url){
-  // window.open with explicit noopener bypasses some iframe sandboxes
-  // and target=_top breaks out of embedding iframes when the host platform
-  // allows it. We try _blank first, fall back to top-level navigation.
-  try {
-    var w = window.open(url, '_blank', 'noopener,noreferrer');
-    if (!w || w.closed || typeof w.closed === 'undefined') {
-      // Popup blocked or sandbox prevents it. Fall back.
-      try { window.top.location.href = url; }
-      catch (e) { window.location.href = url; }
-    }
-  } catch (e) {
-    window.location.href = url;
-  }
-}
-
 function pcard(p,store){
   var emoji=getEmoji((p.categoria||'').toLowerCase());
   var safeUrl=(p.url||'').replace(/"/g,'&quot;');
@@ -301,7 +285,7 @@ function pcard(p,store){
     '<div class="pdesc">'+p.descrizione+'</div>'+
     '<div class="pfoot">'+
     '<span class="pprice">'+p.prezzo+'</span>'+
-    '<button class="plink" style="background:'+store.color+'" onclick="openExternal(\''+safeUrl+'\')">Vedi &rarr;</button>'+
+    '<a class="plink" style="background:'+store.color+'" href="'+safeUrl+'" target="_blank" rel="noopener noreferrer">Vedi &rarr;</a>'+
     '</div></div></div>';
 }
 
