@@ -44,19 +44,26 @@ STORE_URLS = {
         "tessuto": "https://www.ikea.com/it/it/cat/tessili-textiles/",
     },
     "zara": {
+        # Zara Home Italy specialises in textiles, scents, decor and lighting
+        # rather than large furniture. Categories like sofa, armchair and
+        # coffee-table are mapped to the closest available products
+        # (covers, cushions, table linen) so the link still lands on
+        # relevant items instead of an empty search.
+        # Search URLs are used throughout because they never 404 even if
+        # Zara Home restructures its category tree.
         "_home": "https://www.zarahome.com/it/",
-        "divano": "https://www.zarahome.com/it/search?q=divano",
-        "poltrona": "https://www.zarahome.com/it/search?q=poltrona",
-        "tavolino": "https://www.zarahome.com/it/search?q=tavolino",
-        "lampada": "https://www.zarahome.com/it/search?q=lampada",
-        "tappeto": "https://www.zarahome.com/it/search?q=tappeto",
-        "cuscino": "https://www.zarahome.com/it/search?q=cuscino",
-        "vaso": "https://www.zarahome.com/it/search?q=vaso",
-        "candela": "https://www.zarahome.com/it/search?q=candela",
-        "specchio": "https://www.zarahome.com/it/search?q=specchio",
-        "tenda": "https://www.zarahome.com/it/search?q=tenda",
-        "decorazione": "https://www.zarahome.com/it/search?q=decorazione",
-        "tessuto": "https://www.zarahome.com/it/search?q=plaid",
+        "divano": "https://www.zarahome.com/it/search?q=copridivano",
+        "poltrona": "https://www.zarahome.com/it/search?q=poltrona+plaid",
+        "tavolino": "https://www.zarahome.com/it/search?q=tovaglia+lino",
+        "lampada": "https://www.zarahome.com/it/search?q=lampada+da+tavolo",
+        "tappeto": "https://www.zarahome.com/it/search?q=tappeto+salotto",
+        "cuscino": "https://www.zarahome.com/it/search?q=cuscino+decorativo",
+        "vaso": "https://www.zarahome.com/it/search?q=vaso+decorativo",
+        "candela": "https://www.zarahome.com/it/search?q=candela+profumata",
+        "specchio": "https://www.zarahome.com/it/search?q=specchio+parete",
+        "tenda": "https://www.zarahome.com/it/search?q=tenda+lino",
+        "decorazione": "https://www.zarahome.com/it/search?q=oggetto+decorativo",
+        "tessuto": "https://www.zarahome.com/it/search?q=plaid+coperta",
     },
     "westwing": {
         "_home": "https://www.westwing.it/",
