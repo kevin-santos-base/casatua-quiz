@@ -127,7 +127,9 @@ h1 em { font-style:italic; color:var(--terracotta); }
       <div class="step on" id="s1">&#10022; Analisi del carattere</div>
       <div class="step" id="s2">&#10022; Definizione dello stile</div>
       <div class="step" id="s3">&#10022; Costruzione della palette</div>
-      <div class="step" id="s4">&#10022; Selezione prodotti Zara Home</div>
+      <div class="step" id="s4">&#10022; Selezione prodotti IKEA e Zara Home</div>
+      <div class="step" id="s5">&#10022; Selezione prodotti Westwing e La Redoute</div>
+      <div class="step" id="s6">&#10022; Selezione prodotti Merci Paris</div>
     </div>
   </div>
 </div>
@@ -265,8 +267,9 @@ var STORES_ALL=[
   {key:'rinascente',name:'Rinascente',color:'#222222'},
   {key:'merci',   name:'Merci Paris', color:'#4A6741'}
 ];
-// Phase 1 active store keys. To activate phase 2 add: 'ikea','westwing','redoute','merci'.
-var STORES_ACTIVE=['zara'];
+// Active store keys. Rinascente is intentionally excluded (anti-bot blocks
+// the embed/click-through, see backend/stores.py notes).
+var STORES_ACTIVE=['zara','ikea','westwing','redoute','merci'];
 var STORES=STORES_ALL.filter(function(s){return STORES_ACTIVE.indexOf(s.key)!==-1;});
 var STORES_COMING=STORES_ALL.filter(function(s){return STORES_ACTIVE.indexOf(s.key)===-1 && s.key!=='rinascente';});
 
