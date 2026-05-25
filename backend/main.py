@@ -82,7 +82,9 @@ class QuizRequest(BaseModel):
     )
 
 
-@app.get("/api/health")
+# Accept both GET and HEAD so monitoring services (e.g. UptimeRobot defaults
+# to HEAD) don't fall through to the StaticFiles mount and get a misleading 404.
+@app.api_route("/api/health", methods=["GET", "HEAD"])
 def health():
     return {
         "ok": True,
