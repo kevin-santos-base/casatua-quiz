@@ -37,8 +37,19 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 ANTHROPIC_MODEL = os.environ.get("ANTHROPIC_MODEL", "claude-haiku-4-5")
 # 4000 is comfortable for the full 6-store profile (~2500-3500 tokens typical).
 MAX_TOKENS = max(int(os.environ.get("MAX_TOKENS", "4000")), 3000)
-CLAUDE_TIMEOUT_S = 60.0
+# Per-attempt Claude timeout. With up to 2 retries on transient errors, the
+# realistic worst case is around 20-25s (two fast 529 responses + backoff +
+# a successful third attempt). Frontend AbortController allows 60s.
+CLAUDE_TIMEOUT_S = 30.0
 TOOL_NAME = PROFILE_TOOL["name"]
+
+# Anthropic statuses that are worth retrying. 529 (overloaded) is the main
+# one we see in production — Anthropic recovers within seconds. 502/503/504/
+# 520 are transient gateway issues.
+# 429 (rate limit) and 4xx client errors are intentionally not retried.
+_RETRYABLE_STATUSES = frozenset({502, 503, 504, 520, 529})
+_MAX_RETRIES = 2  # total attempts = _MAX_RETRIES + 1
+_BACKOFF_BASE_S = 1.0  # backoff sequence: 1s, 2s
 
 if not ANTHROPIC_API_KEY:
     log.warning("ANTHROPIC_API_KEY is not set. /api/quiz will return 500 until configured.")
@@ -78,6 +89,8 @@ def health():
         "model": ANTHROPIC_MODEL,
         "questions": len(QUESTIONS),
         "max_tokens": MAX_TOKENS,
+        "claude_timeout_s": CLAUDE_TIMEOUT_S,
+        "max_retries": _MAX_RETRIES,
         "key_configured": bool(ANTHROPIC_API_KEY),
     }
 
@@ -98,7 +111,7 @@ def quiz(req: QuizRequest, request: Request):
     user_message = build_user_message(req.answers)
 
     try:
-        message = client.messages.create(
+        message = _call_claude_with_retry(
             model=ANTHROPIC_MODEL,
             max_tokens=MAX_TOKENS,
             timeout=CLAUDE_TIMEOUT_S,
@@ -108,13 +121,18 @@ def quiz(req: QuizRequest, request: Request):
         )
     except anthropic.APITimeoutError:
         log.warning("Claude API timeout after %ss", CLAUDE_TIMEOUT_S)
-        raise HTTPException(status_code=504, detail="Claude ha impiegato troppo tempo. Riprova.")
+        raise HTTPException(status_code=504, detail="Claude ha impiegato troppo tempo. Riprova fra qualche istante.")
     except anthropic.RateLimitError:
         log.warning("Anthropic rate limit hit")
-        raise HTTPException(status_code=429, detail="Limite di richieste Anthropic raggiunto. Riprova fra poco.")
+        raise HTTPException(status_code=429, detail="Limite di richieste raggiunto. Riprova fra un minuto.")
     except anthropic.APIStatusError as e:
-        log.exception("Anthropic API error status=%s", getattr(e, "status_code", "?"))
-        raise HTTPException(status_code=502, detail=f"Errore Anthropic ({getattr(e, 'status_code', '?')}). Riprova.")
+        status = getattr(e, "status_code", "?")
+        log.exception("Anthropic API error status=%s after retries", status)
+        if status == 529:
+            detail = "I server di Claude sono temporaneamente sovraccarichi. Riprova fra qualche istante."
+        else:
+            detail = f"Errore Anthropic ({status}). Riprova fra qualche istante."
+        raise HTTPException(status_code=502, detail=detail)
     except Exception:
         log.exception("Unexpected error calling Anthropic")
         raise HTTPException(status_code=500, detail="Errore interno. Riprova.")
@@ -122,6 +140,29 @@ def quiz(req: QuizRequest, request: Request):
     result = _extract_tool_input(message)
     result = _enrich_with_urls(result)
     return JSONResponse(result)
+
+
+def _call_claude_with_retry(**kwargs):
+    """Call Claude with automatic retry on transient upstream errors.
+
+    Retries on 529 (overloaded) and other transient gateway statuses defined
+    in _RETRYABLE_STATUSES. Backoff is 1s then 2s. Non-transient errors and
+    timeouts are re-raised immediately so the caller can map them to a clear
+    user message. After _MAX_RETRIES extra attempts the last error bubbles up.
+    """
+    for attempt in range(_MAX_RETRIES + 1):
+        try:
+            return client.messages.create(**kwargs)
+        except anthropic.APIStatusError as e:
+            status = getattr(e, "status_code", None)
+            if status not in _RETRYABLE_STATUSES or attempt == _MAX_RETRIES:
+                raise
+            wait_s = _BACKOFF_BASE_S * (2 ** attempt)
+            log.warning(
+                "Anthropic %s, retrying in %.1fs (attempt %d/%d)",
+                status, wait_s, attempt + 2, _MAX_RETRIES + 1,
+            )
+            time.sleep(wait_s)
 
 
 def _extract_tool_input(message) -> dict:
