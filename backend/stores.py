@@ -37,19 +37,23 @@ CATEGORIES = [
 
 STORE_URLS = {
     "ikea": {
+        # Verified against IKEA Italy top-level category tree. IKEA groups
+        # some product types under broader categories (cushions and rugs
+        # under "Tessili", candles and mirrors under "Decorazioni casa"),
+        # so a few of our quiz categories share an IKEA destination.
         "_home": "https://www.ikea.com/it/it/",
-        "divano": "https://www.ikea.com/it/it/cat/divani-fu003/",
-        "poltrona": "https://www.ikea.com/it/it/cat/poltrone-fu002/",
-        "tavolino": "https://www.ikea.com/it/it/cat/tavolini-da-salotto-20649/",
-        "lampada": "https://www.ikea.com/it/it/cat/illuminazione-lighting/",
-        "tappeto": "https://www.ikea.com/it/it/cat/tappeti-rugs-fu002/",  # VERIFY
-        "cuscino": "https://www.ikea.com/it/it/cat/cuscini-decorativi-20734/",
-        "vaso": "https://www.ikea.com/it/it/cat/vasi-vases-20674/",  # VERIFY
-        "candela": "https://www.ikea.com/it/it/cat/candele-candele-profumate-20675/",  # VERIFY
-        "specchio": "https://www.ikea.com/it/it/cat/specchi-mirrors-fu004/",  # VERIFY
-        "tenda": "https://www.ikea.com/it/it/cat/tende-curtains-fu004/",  # VERIFY
-        "decorazione": "https://www.ikea.com/it/it/cat/decorazione-home-decoration/",
-        "tessuto": "https://www.ikea.com/it/it/cat/tessili-textiles/",
+        "divano": "https://www.ikea.com/it/it/cat/divani-e-poltrone-700640/",
+        "poltrona": "https://www.ikea.com/it/it/cat/divani-e-poltrone-700640/",
+        "tavolino": "https://www.ikea.com/it/it/cat/tavoli-e-sedie-fu002/",
+        "lampada": "https://www.ikea.com/it/it/cat/illuminazione-li001/",
+        "tappeto": "https://www.ikea.com/it/it/cat/tessili-tl001/",
+        "cuscino": "https://www.ikea.com/it/it/cat/tessili-tl001/",
+        "vaso": "https://www.ikea.com/it/it/cat/piante-e-vasi-pp001/",
+        "candela": "https://www.ikea.com/it/it/cat/decorazioni-casa-de001/",
+        "specchio": "https://www.ikea.com/it/it/cat/decorazioni-casa-de001/",
+        "tenda": "https://www.ikea.com/it/it/cat/tende-e-accessori-tl002/",
+        "decorazione": "https://www.ikea.com/it/it/cat/decorazioni-casa-de001/",
+        "tessuto": "https://www.ikea.com/it/it/cat/tessili-tl001/",
     },
     "zara": {
         # Zara Home Italy search endpoint is /it/search.html with param name
@@ -73,34 +77,39 @@ STORE_URLS = {
         "tessuto": "https://www.zarahome.com/it/search.html?term=coperta",
     },
     "westwing": {
+        # All URLs verified against the live Westwing Italy category tree.
         "_home": "https://www.westwing.it/",
         "divano": "https://www.westwing.it/divani/",
         "poltrona": "https://www.westwing.it/poltrone/",
         "tavolino": "https://www.westwing.it/tavolini/",
         "lampada": "https://www.westwing.it/illuminazione/",
         "tappeto": "https://www.westwing.it/tappeti/",
-        "cuscino": "https://www.westwing.it/cuscini/",
+        "cuscino": "https://www.westwing.it/cuscini-decorativi/",
         "vaso": "https://www.westwing.it/vasi/",
         "candela": "https://www.westwing.it/candele/",
         "specchio": "https://www.westwing.it/specchi/",
-        "tenda": "https://www.westwing.it/tende/",
+        "tenda": "https://www.westwing.it/tende-e-tendaggi/",
         "decorazione": "https://www.westwing.it/accessori/",
-        "tessuto": "https://www.westwing.it/tessuti-casa/",
+        "tessuto": "https://www.westwing.it/plaid-e-coperte/",
     },
     "redoute": {
-        "_home": "https://www.laredoute.it/pplp/cat-deco-maison.aspx",
-        "divano": "https://www.laredoute.it/ppdp/cat-divani.aspx",  # VERIFY
-        "poltrona": "https://www.laredoute.it/ppdp/cat-poltrone.aspx",  # VERIFY
-        "tavolino": "https://www.laredoute.it/ppdp/cat-tavolini.aspx",  # VERIFY
-        "lampada": "https://www.laredoute.it/ppdp/cat-illuminazione.aspx",  # VERIFY
-        "tappeto": "https://www.laredoute.it/ppdp/cat-tappeti.aspx",  # VERIFY
-        "cuscino": "https://www.laredoute.it/ppdp/cat-cuscini.aspx",  # VERIFY
-        "vaso": "https://www.laredoute.it/ppdp/cat-decorazione.aspx",  # VERIFY
-        "candela": "https://www.laredoute.it/ppdp/cat-decorazione.aspx",  # VERIFY
-        "specchio": "https://www.laredoute.it/ppdp/cat-specchi.aspx",  # VERIFY
-        "tenda": "https://www.laredoute.it/ppdp/cat-tende.aspx",  # VERIFY
-        "decorazione": "https://www.laredoute.it/pplp/cat-deco-maison.aspx",
-        "tessuto": "https://www.laredoute.it/ppdp/cat-tessuti.aspx",  # VERIFY
+        # La Redoute Italy uses a search endpoint at /psrch/psrch.aspx with
+        # the `kwrd` query parameter. The earlier category URLs were guesses
+        # and 404'd; the search endpoint is stable and returns relevant
+        # product grids for all of our quiz categories.
+        "_home": "https://www.laredoute.it/",
+        "divano": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=divano",
+        "poltrona": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=poltrona",
+        "tavolino": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=tavolino",
+        "lampada": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=lampada",
+        "tappeto": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=tappeto",
+        "cuscino": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=cuscino",
+        "vaso": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=vaso",
+        "candela": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=candela",
+        "specchio": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=specchio",
+        "tenda": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=tenda",
+        "decorazione": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=decorazione",
+        "tessuto": "https://www.laredoute.it/psrch/psrch.aspx?kwrd=plaid",
     },
     "rinascente": {
         # NOTE: Rinascente has aggressive geo / bot protection. Several pages
@@ -121,22 +130,27 @@ STORE_URLS = {
         "tessuto": "https://www.rinascente.it/rinascente/it/categoria/casa-design",
     },
     "merci": {
-        # NOTE: Merci Paris does not offer category deep-linking in a stable way.
-        # All categories point to the e-commerce homepage section that is
-        # known to load reliably.
-        "_home": "https://www.merci-merci.com/en/",
-        "divano": "https://www.merci-merci.com/en/categorie/furniture.html",  # VERIFY
-        "poltrona": "https://www.merci-merci.com/en/categorie/furniture.html",  # VERIFY
-        "tavolino": "https://www.merci-merci.com/en/categorie/furniture.html",  # VERIFY
-        "lampada": "https://www.merci-merci.com/en/categorie/lighting.html",  # VERIFY
-        "tappeto": "https://www.merci-merci.com/en/categorie/textile.html",  # VERIFY
-        "cuscino": "https://www.merci-merci.com/en/categorie/textile.html",  # VERIFY
-        "vaso": "https://www.merci-merci.com/en/categorie/tableware.html",  # VERIFY
-        "candela": "https://www.merci-merci.com/en/categorie/perfume.html",  # VERIFY
-        "specchio": "https://www.merci-merci.com/en/categorie/furniture.html",  # VERIFY
-        "tenda": "https://www.merci-merci.com/en/categorie/textile.html",  # VERIFY
-        "decorazione": "https://www.merci-merci.com/en/categorie/objet.html",  # VERIFY
-        "tessuto": "https://www.merci-merci.com/en/categorie/textile.html",  # VERIFY
+        # Merci uses a single-page-app search view at /en with a hash-fragment
+        # route. The "27b9" route ID is the fullscreen product search view.
+        # Keywords are mostly English. Three exceptions (tavolino, tappeto,
+        # specchio) use better-performing variants found by manual testing:
+        # "stool" instead of "side table", "tapis" instead of "rug",
+        # "miroir" instead of "mirror".
+        # The hash-fragment URL means our search-URL refinement logic (which
+        # parses query strings) is a no-op here, which is intentional.
+        "_home": "https://merci-merci.com/en/",
+        "divano":      "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=sofa",
+        "poltrona":    "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=armchair",
+        "tavolino":    "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=stool",
+        "lampada":     "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=lamp",
+        "tappeto":     "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=tapis",
+        "cuscino":     "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=cushion",
+        "vaso":        "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=vase",
+        "candela":     "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=candle",
+        "specchio":    "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=miroir",
+        "tenda":       "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=curtain",
+        "decorazione": "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=decor",
+        "tessuto":     "https://merci-merci.com/en#27b9/fullscreen/product/m=and&q=throw",
     },
 }
 
@@ -159,7 +173,10 @@ _ITALIAN_STOP_WORDS = frozenset({
 # Query-parameter names commonly used by store search endpoints. We look for
 # any of these when deciding whether a URL is "search-shaped" and can be
 # refined with extra keywords.
-_SEARCH_PARAMS = ("term", "q", "query", "searchTerm")
+# - "term" is used by Zara Home
+# - "kwrd" is used by La Redoute
+# - the others are common defaults on other ecommerce platforms
+_SEARCH_PARAMS = ("term", "q", "query", "searchTerm", "kwrd")
 
 
 def _refine_search_url(base_url: str, product_name: str, max_extra: int = 2) -> str:
